@@ -129,8 +129,10 @@ export default class WpAdapter {
             let result: WpPost;
             if (postId) {
                 result = await this.wp.posts().id(postId).update(postObject)
+                new Notice("Post updated successfully 🥳")
             } else {
                 result = await this.wp.posts().create(postObject)
+                new Notice("Post created successfully 🥳")
             }
 
             console.log({result})
