@@ -1,0 +1,10 @@
+{
+	"id": "obsidian-wp",
+	"name": "Obsidian WP",
+	"version": "1.0.0",
+	"minAppVersion": "0.12.0",
+	"description": "Publish to your WordPress blog directly from Obsidian.",
+	"author": "WildPress",
+	"authorUrl": "https://wildpress.co",
+	"isDesktopOnly": false
+}

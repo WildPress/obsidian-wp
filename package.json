@@ -1,0 +1,37 @@
+{
+  "name": "obsidian-wp",
+  "version": "1.0.0",
+  "description": "Publish to your WordPress blog directly from Obsidian.",
+  "main": "main.js",
+  "scripts": {
+    "dev": "node esbuild.config.mjs",
+    "build": "node esbuild.config.mjs production"
+  },
+  "keywords": [
+    "wp",
+    "wordpress",
+    "obsidian",
+    "plugin",
+    "rest-api"
+  ],
+  "author": {
+    "name": "WildPress",
+    "url": "https://wildpress.co/"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^16.11.6",
+    "@types/wpapi": "^1.1.1",
+    "@typescript-eslint/eslint-plugin": "^5.2.0",
+    "@typescript-eslint/parser": "^5.2.0",
+    "builtin-modules": "^3.2.0",
+    "esbuild": "0.13.12",
+    "front-matter": "^4.0.2",
+    "marked": "^4.0.8",
+    "obsidian": "^0.12.17",
+    "tslib": "2.3.1",
+    "typescript": "4.4.4",
+    "wpapi": "^1.2.2"
+  },
+  "dependencies": {}
+}
