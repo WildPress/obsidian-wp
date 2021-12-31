@@ -2,7 +2,7 @@ import WPAPI from "wpapi"
 import {App, MarkdownView, Notice} from "obsidian"
 import fm from "front-matter"
 import ObsidianWp from "./main"
-import {WpPost} from "./types";
+import {WpCategory, WpPost, WpTag} from "./types";
 
 const marked = require("marked")
 
@@ -82,57 +82,136 @@ export default class WpAdapter {
     }
 
     async insertPost() {
-        console.log('Inserting Post...')
-        const {workspace} = this.app
+                const {workspace} = this.app
         const activeView = workspace.getActiveViewOfType(MarkdownView)
 
         if (activeView) {
             const title = activeView.file.basename
             const content = await this.app.vault.read(activeView.file)
             const frontMatter = fm(content)
+
+            console.log('Publishing Post...')
+            new Notice(`Publishing Post: "${title}"`)
+
+            // Strip front-matter and HTML comments
             const parsedContent = marked.parse(content
                 .replace(/^---$.*^---$/ms, '')
-                .replace(/^<!--$.*^-->$/ms, '')
+                .replace(/^<!--.*-->$/ms, '')
             )
 
-            let postId: number;
+            let wpPost: WpPost;
             let postObject: WpPost = {
                 title: title,
                 content: parsedContent
             }
 
+
+            // Parse front-matter attributes starting with 'wp_'
             for (const [key, value] of Object.entries(frontMatter.attributes)) {
-                postObject[key] = value
+                if (!key.startsWith('wp_')) {
+                    continue
+                }
+
+                switch (key) {
+                    case 'wp_tags':
+                        let postTags: Array<number> = []
+                        for (const tag of value) {
+                            console.log(`Fetching data for "${tag}" tag...`)
+                            let wp_tag: WpTag;
+                            if (typeof tag === 'string') {
+                                const wp_tags = await this.wp.tags().param('slug', tag)
+                                if (!wp_tags.length) {
+                                    new Notice(`Could not find matching tag: "${tag}"`)
+                                    continue
+                                }
+                                wp_tag = wp_tags[0]
+                            } else if (typeof tag === 'number') {
+                                try {
+                                    wp_tag = await this.wp.tags().id(tag)
+                                } catch (e) {
+                                    new Notice(`Could not find matching tag: "${tag}"`)
+                                    continue
+                                }
+                            }
+
+                            console.log(`Got tag data for "${tag}"`, wp_tag)
+                            postTags.push(wp_tag.id)
+                        }
+
+                        if (postTags.length) {
+                            postObject.tags = postTags
+                        }
+                        break
+                    case 'wp_categories':
+                        let postCategories: Array<number> = []
+                        for (const categories of value) {
+                            console.log(`Fetching data for "${categories}" category...`)
+                            let wp_category: WpCategory;
+                            if (typeof categories === 'string') {
+                                const wp_categories = await this.wp.categories().param('slug', categories)
+                                if (!wp_categories.length) {
+                                    new Notice(`Could not find matching category: "${categories}"`)
+                                    continue
+                                }
+                                wp_category = wp_categories[0]
+                            } else if (typeof categories === 'number') {
+                                try {
+                                    wp_category = await this.wp.categories().id(categories)
+                                } catch (e) {
+                                    new Notice(`Could not find matching category: "${categories}"`)
+                                    continue
+                                }
+                            }
+
+                            console.log(`Got categories data for "${categories}"`, wp_category)
+                            postCategories.push(wp_category.id)
+                        }
+
+                        if (postCategories.length) {
+                            postObject.categories = postCategories
+                        }
+                        break;
+                    default:
+                        postObject[key.replace(/^wp_/, '')] = value
+                }
             }
 
-            await this.wp.posts()
-                .param('status', 'any')
-                .param('posts_per_page', '-1')
-                .get((error, data: Array<WpPost>) => {
-                for (const post of data) {
-                    // Set the post ID if the slugs match
-                    if (postObject.slug && postObject.slug === post.slug) {
-                        console.log(`Matched slug: ${postObject.slug}`)
-                        postId = post.id
-                        return
-                    }
+            if (postObject.slug && postObject.slug.length) {
+                // Attempt to match an existing post by slug
+                const post = await this.wp.posts().param('slug', postObject.slug)
+                if (post.length) {
+                    wpPost = post[0]
+                }
+            }
 
-                    // Set the post ID if the titles match
-                    if (postObject.title === post.title?.rendered) {
-                        console.log(`Matched title: ${postObject.title}`)
-                        postId = post.id
-                        return
+            if (!wpPost) {
+                // Attempt to match an existing post by title
+                const posts = await this.wp.posts().param('search', postObject.title)
+                if (posts.length) {
+                    for (const post of posts) {
+                        if (post.title.rendered === postObject.title) {
+                            wpPost = post
+                            break
+                        }
                     }
                 }
-            })
+            }
+
+            if (wpPost) {
+                console.log(`Found existing post "${wpPost.title.rendered}"...`)
+                new Notice(`Updating Existing Post: "${wpPost.title.rendered}"`)
+            } else {
+                console.log(`Could not find existing post...`)
+                new Notice(`Creating New Post: "${postObject.title}"`)
+            }
 
             let result: WpPost;
-            if (postId) {
-                result = await this.wp.posts().id(postId).update(postObject)
-                new Notice("Post updated successfully 🥳")
+            if (wpPost) {
+                result = await this.wp.posts().id(wpPost.id).update(postObject)
+                new Notice(`Post "${wpPost.title.rendered}" Updated Successfully 🥳`)
             } else {
                 result = await this.wp.posts().create(postObject)
-                new Notice("Post created successfully 🥳")
+                new Notice(`Post "${postObject.title}" Created Successfully 🥳`)
             }
 
             console.log({result})

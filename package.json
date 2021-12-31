@@ -1,6 +1,6 @@
 {
   "name": "obsidian-wp",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Publish to your WordPress blog directly from Obsidian.",
   "main": "main.js",
   "scripts": {

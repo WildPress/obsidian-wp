@@ -1,7 +1,7 @@
 import {App, Notice, PluginSettingTab, Setting} from "obsidian";
 import {ObsidianWpSettings} from "./types";
 import ObsidianWp from "./main";
-import WpAuthModal from "./wp-view";
+import WpAuthModal from "./wp-auth-modal";
 import WpAdapter from "./wp-adapter";
 import { validateUrl } from "./helpers";
 
@@ -88,7 +88,7 @@ export class ObsidianWpSettingTab extends PluginSettingTab {
             .setDesc("Once you have added your username and application password, click here to validate you are able to post to your WordPress website.")
             .addButton((button) => {
                 button.setButtonText("Validate Settings")
-                    .onClick(async (e) => {
+                    .onClick(async () => {
                         try {
                             const url = validateUrl(this.plugin.settings.blogUrl)
 

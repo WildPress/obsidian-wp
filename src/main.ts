@@ -1,14 +1,15 @@
 import {Notice, Plugin} from "obsidian"
-import {DEFAULT_SETTINGS, ObsidianWpSettingTab} from "./settings";
-import {ObsidianWpSettings} from "./types";
-import WpAdapter from "./wp-adapter";
-import {validateUrl} from "./helpers";
+import {DEFAULT_SETTINGS, ObsidianWpSettingTab} from "./settings"
+import {ObsidianWpSettings} from "./types"
+import WpAdapter from "./wp-adapter"
+import {validateUrl} from "./helpers"
+const manifest = require("../manifest.json")
 
 export default class ObsidianWp extends Plugin {
     settings: ObsidianWpSettings
 
     async onload() {
-        console.log("Loading Obsidian WP Plugin")
+        console.log(`Loading Obsidian WP Plugin v${manifest.version}`)
         await this.loadSettings()
 
         this.addCommand({
