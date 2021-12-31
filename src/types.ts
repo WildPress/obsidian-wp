@@ -17,3 +17,11 @@ export interface WpPost {
     tags?: Array<string | number>;
     categories?: Array<string | number>;
 }
+
+export interface WpTag {
+    id: number;
+}
+
+export interface WpCategory {
+    id: number;
+}

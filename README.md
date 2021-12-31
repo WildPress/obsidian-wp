@@ -15,22 +15,25 @@ Post directly to your WordPress blog from Obsidian.
 ## Plugin Options
 - In the front matter you can specify various meta-data for your post:
   - https://developer.wordpress.org/rest-api/reference/posts/#create-a-post.
-  - Categories and tags needs to use their IDs, not slugs.
-  - Specify the "slug" if you want a specific URL for your post.
-  - Specify the "status" to determine the WordPress publish status ("draft", "publish", [etc.](https://wordpress.org/support/article/post-status/)) default is "draft".
+  - Categories and tags can be slugs or IDs.
+  - Specify the "wp_slug" if you want a specific URL for your post.
+  - Specify the "wp_status" to determine the WordPress publish status ("draft", "publish", [etc.](https://wordpress.org/support/article/post-status/)) default is "draft".
 
 ### Example Front Matter:
 \---\
-slug: 'hello-world'\
-status: 'publish'\
-excerpt: 'This is the post excerpt'\
-categories: [13, 6]\
-tags: [12, 8, 42]\
+wp_slug: 'hello-world'\
+wp_status: 'publish'\
+wp_excerpt: 'This is the post excerpt'\
+wp_categories: ['category-slug', 12]\
+wp_tags: ['tag-slug', 32]\
 \---
 
 ### Commenting
 Text surrounded by HTML comment tags (see below), will be ignored and not published to WordPress. Handy if there are bits you want to exclude from WordPress but keep in the same Obsidian markdown file.
 
 \<!--\
-This is a comment\
+This is a multi-line\
+comment, cool! \
 \-->
+
+<!-- This is an in-line comment. -->

@@ -1,4 +1,4 @@
-import {App, ItemView, Modal, Workspace, WorkspaceLeaf} from "obsidian"
+import {App, Modal} from "obsidian"
 import ObsidianWp from "./main"
 
 export default class WpAuthModal extends Modal {
